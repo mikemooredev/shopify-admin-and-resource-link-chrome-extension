@@ -1,0 +1,41 @@
+body {
+  inline-size: 20rem;
+  margin: 1rem;
+  font-size: 12px;
+  color: #333;
+  font-family: 'Open Sans', sans-serif;
+}
+
+[aria-hidden='true'] {
+  display: none;
+}
+
+h1 {
+  margin: 1rem 0;
+}
+
+ul {
+  list-style-type: none;
+  padding-inline-start: 0;
+  margin: 1rem 0;
+}
+
+ul:is(:hover, :focus-within) > li {
+  opacity: 0.5;
+}
+
+li {
+  transition: opacity 0.25s ease-in-out;
+}
+
+ul > li:is(:hover, :focus-within) {
+  opacity: 1;
+}
+
+p, li {
+  margin: 0.25rem 0;
+}
+
+a {
+  color: inherit;
+}
