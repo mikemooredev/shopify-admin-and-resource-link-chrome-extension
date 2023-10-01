@@ -32,6 +32,7 @@ class ContentScript {
     }
 
     // Get shop admin data
+    if (!this.storeName) return
     chrome.runtime.sendMessage({ type: 'get-shop', storeName: this.storeName }, (response) => {
       if (!response.shop) return
 
