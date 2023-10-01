@@ -56,7 +56,8 @@ class ContentScript {
   }
 
   get storeName () {
-    return this.windowData?.shopify?.shop?.split('.')?.[0]
+    const storeName = this.windowData?.shopify?.shop?.split('.')?.[0]
+    return storeName?.length ? storeName : null
   }
 
   get shopAdminDataFromSessionStorage () {
