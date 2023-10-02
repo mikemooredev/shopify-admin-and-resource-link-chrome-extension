@@ -1,9 +1,13 @@
 body {
+  --Color_Body: #333;
+  --Color_Grey: #777;
+
   inline-size: 20rem;
   margin: 1rem;
   font-size: 12px;
-  color: #333;
+  color: var(--Color_Body);
   font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
 }
 
 [aria-hidden='true'] {
@@ -25,17 +29,36 @@ ul:is(:hover, :focus-within) > li {
 }
 
 li {
-  transition: opacity 0.25s ease-in-out;
+  transition: opacity 0.25s ease-in;
 }
 
 ul > li:is(:hover, :focus-within) {
   opacity: 1;
 }
 
-p, li {
+p, li, button {
   margin: 0.25rem 0;
 }
 
 a {
   color: inherit;
+}
+
+strong {
+  font-weight: 600;
+}
+
+button {
+  cursor: pointer;
+  border-radius: 2px;
+  border: 1px solid var(--Color_Body);
+  padding: 5px 10px;
+  transition: color 0.25s ease-in, background-color 0.25s ease-in;
+}
+button:is(:hover, :focus-visible) {
+  color: #fff;
+  background-color: var(--Color_Body);
+}
+button:is([data-pressed]) {
+  background-color: var(--Color_Grey);
 }

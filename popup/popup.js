@@ -5,6 +5,7 @@ class Popup {
 
   setupListeners  () {
     document.addEventListener('DOMContentLoaded', this.handleDomReady.bind(this))
+    document.addEventListener('click', this.handleClick.bind(this))
   }
 
   handleDomReady () {
@@ -13,10 +14,21 @@ class Popup {
     })
   }
 
+  handleClick (event) {
+    const buttonEl = event.target.closest('[data-copy-to-clipboard]')
+
+    if (buttonEl) {
+      buttonEl.toggleAttribute('data-pressed', true)
+      navigator.clipboard.writeText(buttonEl.value)
+
+      setTimeout(() => {
+        buttonEl.toggleAttribute('data-pressed', false)
+      }, 500)
+    }
+  }
+
   handleResponse (response) {
     if (!response?.data?.shopify && !response?.data?.meta) return
-
-    console.log(response.data)
 
     this.data = response.data
 
@@ -28,6 +40,14 @@ class Popup {
       <p><strong>Store Name:</strong> ${this.storeName}</p>
       <p><strong>Theme Name:</strong> ${response.data.shopify.theme.name}</p>
       <p><strong>Theme ID:</strong> ${response.data.shopify.theme.id}</p>
+      <button
+        type="button"
+        value="https://${this.data?.shopify?.shop}${response.data.location.pathname}?preview_theme_id=${response.data.shopify.theme.id}"
+        title="https://${this.data?.shopify?.shop}${response.data.location.pathname}?preview_theme_id=${response.data.shopify.theme.id}"
+        data-copy-to-clipboard
+      >
+        Copy Preview Link
+      </button>
 
       <ul>
         <li>
@@ -55,6 +75,14 @@ class Popup {
           <li>
             <a target="_blank" href="https://shopify.dev/docs/api/liquid/objects/${this.resourceType}">
               Liquid Reference
+            </a>
+          </li>
+        ` : ''}
+
+        ${this.data?.shopify?.theme?.role === 'unpublished' ? `
+          <li>
+            <a target="_blank" href="https://admin.shopify.com/store/lights4fun-2/themes/${response.data.shopify.theme.id}">
+              Edit Code
             </a>
           </li>
         ` : ''}
