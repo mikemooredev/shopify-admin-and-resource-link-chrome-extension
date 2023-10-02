@@ -6,8 +6,6 @@
 - Turn on "Developer mode". (Toggle in top right corner)
 - Click on "Load Unpacked" and select the folder on your machine containing the extension's code
 
-![Chrome extension installation](chrome-extension-installation.png)
-
 ## How does it work?
 
 - The file `content-script.js` initialises the functionality by injecting a JS file called `post-message.js` into every website visited when the extension is enabled
