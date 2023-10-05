@@ -81,7 +81,7 @@ class Popup {
 
         ${this.data?.shopify?.theme?.role === 'unpublished' ? `
           <li>
-            <a target="_blank" href="https://admin.shopify.com/store/lights4fun-2/themes/${response.data.shopify.theme.id}">
+            <a target="_blank" href="https://admin.shopify.com/store/${this.storeName}/themes/${response.data.shopify.theme.id}">
               Edit Code
             </a>
           </li>
