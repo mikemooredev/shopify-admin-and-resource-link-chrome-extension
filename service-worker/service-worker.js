@@ -14,7 +14,9 @@ class ServiceWorker {
     .then(response => {
       return response.ok ? response.json() : {}
     }).then(response => {
-      senderResponse(response)
+      const data = typeof(response?.shop) === 'object' ? response : {}
+
+      senderResponse(data)
     })
 
     return true

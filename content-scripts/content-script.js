@@ -21,7 +21,7 @@ class ContentScript {
 
   handlePostMessages (event) {
     if (event.origin !== window.location.origin || !event.isTrusted || !event.data.length) return
-    this.windowData = JSON.parse(event.data)
+    this.windowData = this.isJsonString(event.data) ? JSON.parse(event.data) : {}
 
     if (this.shopAdminDataFromSessionStorage) {
       this.data = {
@@ -55,8 +55,17 @@ class ContentScript {
     return true
   }
 
+  isJsonString (string) {
+    try {
+      JSON.parse(string)
+    } catch (error) {
+      return false
+    }
+    return true
+  }
+
   get storeName () {
-    const storeName = this.windowData?.shopify?.shop?.split('.')?.[0]
+    const storeName = this.windowData?.Shopify?.shop?.split('.')?.[0]
     return storeName?.length ? storeName : null
   }
 

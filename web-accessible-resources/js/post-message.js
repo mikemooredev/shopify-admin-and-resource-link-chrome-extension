@@ -1,9 +1,11 @@
 (async () => {
-  const windowData = window?.Shopify ? {
-    shopify: window.Shopify,
+  if(!window?.Shopify) return
+
+  const data = {
+    Shopify: window.Shopify,
     meta: window.meta,
     location: window.location
-  } : {}
+  }
 
-  window.postMessage(JSON.stringify(windowData), window.location.origin)
+  window.postMessage(JSON.stringify(data), window.location.origin)
 })()

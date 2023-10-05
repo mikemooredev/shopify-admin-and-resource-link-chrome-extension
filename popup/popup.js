@@ -15,73 +15,105 @@ class Popup {
   }
 
   handleClick (event) {
-    const buttonEl = event.target.closest('[data-copy-to-clipboard]')
+    const detailsButtonEl = event.target.closest('[data-copy-store-detail]')
 
-    if (buttonEl) {
-      buttonEl.toggleAttribute('data-pressed', true)
-      navigator.clipboard.writeText(buttonEl.value)
+    if (detailsButtonEl) {
+      const detailEl =  document.querySelector('[data-store-detail]')
+      if(!detailEl) return
 
-      setTimeout(() => {
-        buttonEl.toggleAttribute('data-pressed', false)
-      }, 500)
+      this.setClipboard(detailEl.outerHTML)
+      this.togglePressed(detailsButtonEl)
+    }
+
+    const previewButtonEl = event.target.closest('[data-copy-preview-url]')
+
+    if (previewButtonEl) {
+      this.setClipboard(previewButtonEl.value)
+      this.togglePressed(previewButtonEl)
     }
   }
 
   handleResponse (response) {
-    if (!response?.data?.shopify && !response?.data?.meta) return
+    if (!response?.data?.Shopify && !response?.data?.meta) return
 
     this.data = response.data
 
     const defaultViewEl = document.querySelector('[data-view="default"]')
     const adminViewEl = document.querySelector('[data-view="admin"]')
 
+    const params = new URLSearchParams(this.data?.location?.search)
+    params.set('preview_theme_id', this.theme?.id)
+
+    const adminUrl = `https://admin.shopify.com/store/${this.storeName}`
+    const previewUrl = `https://${this.Shopify?.shop}${this.data.location.pathname}?${params.toString()}`
+
     adminViewEl.innerHTML = `
       <h1>${response.shop.name}</h1>
-      <p><strong>Store Name:</strong> ${this.storeName}</p>
-      <p><strong>Theme Name:</strong> ${response.data.shopify.theme.name}</p>
-      <p><strong>Theme ID:</strong> ${response.data.shopify.theme.id}</p>
+      <div data-store-detail>
+        <p>
+          <strong>Store Name:</strong> <a href="${adminUrl}/" target="_blank">${this.storeName}</a><br />
+          <strong>Theme Name:</strong> ${this.theme?.name}<br />
+          <strong>Theme ID:</strong> ${this.theme?.id}<br />
+          <strong>Preview URL:</strong> <a href="${previewUrl}" target="_blank">${previewUrl}</a>
+        </p>
+      </div>
+
       <button
         type="button"
-        value="https://${this.data?.shopify?.shop}${response.data.location.pathname}?preview_theme_id=${response.data.shopify.theme.id}"
-        title="https://${this.data?.shopify?.shop}${response.data.location.pathname}?preview_theme_id=${response.data.shopify.theme.id}"
-        data-copy-to-clipboard
+        value="${previewUrl}"
+        data-copy-preview-url
       >
-        Copy Preview Link
+        Copy Preview URL
+      </button>
+
+      <button
+        type="button"
+        data-copy-store-detail
+      >
+        Copy Details
       </button>
 
       <ul>
         <li>
-          <a target="_blank" href="https://admin.shopify.com/store/${this.storeName}/">
+          <a target="_blank" href="${adminUrl}/">
             Shopify Admin
           </a>
         </li>
         <li>
-          <a target="_blank" href="https://admin.shopify.com/store/${this.storeName}/themes/${response.data.shopify.theme.id}/editor?previewPath=${response.data.location.pathname}">
+          <a target="_blank" href="${adminUrl}/themes/${this.theme?.id}/editor?previewPath=${this.data.location.pathname}">
             Customiser
           </a>
         </li>
 
         ${this.resourceType && this.resourceId ? `
           <li>
-            <a target="_blank" href="https://admin.shopify.com/store/${this.storeName}/${this.resourceType}s/${this.resourceId}">
+            <a target="_blank" href="${adminUrl}/${this.resourceType}s/${this.resourceId}">
               ${this.capitalizeFirstLetter(this.resourceType)} Admin
             </a>
           </li>
           <li>
-            <a target="_blank" href="https://admin.shopify.com/store/${this.storeName}/${this.resourceType}s/${this.resourceId}/metafields">
+            <a target="_blank" href="${adminUrl}/${this.resourceType}s/${this.resourceId}/metafields">
               ${this.capitalizeFirstLetter(this.resourceType)} Metafields
             </a>
           </li>
           <li>
             <a target="_blank" href="https://shopify.dev/docs/api/liquid/objects/${this.resourceType}">
-              Liquid Reference
+              Liquid Reference (${this.resourceType})
             </a>
           </li>
         ` : ''}
 
-        ${this.data?.shopify?.theme?.role === 'unpublished' ? `
+        ${this.hasPageTypeReference ? `
           <li>
-            <a target="_blank" href="https://admin.shopify.com/store/${this.storeName}/themes/${response.data.shopify.theme.id}">
+            <a target="_blank" href="https://shopify.dev/docs/api/liquid/objects/${this.pageType}">
+              Liquid Reference (${this.pageType})
+            </a>
+          </li>
+        ` : ''}
+
+        ${this.theme?.role === 'unpublished' ? `
+          <li>
+            <a target="_blank" href="${adminUrl}/themes/${this.theme?.id}">
               Edit Code
             </a>
           </li>
@@ -93,12 +125,45 @@ class Popup {
     adminViewEl?.setAttribute('aria-hidden', 'false')
   }
 
-  capitalizeFirstLetter(string) {
+  togglePressed (element) {
+    element.toggleAttribute('data-pressed', true)
+
+    setTimeout(() => {
+      element.toggleAttribute('data-pressed', false)
+    }, 400)
+  }
+
+  capitalizeFirstLetter (string) {
     return string.charAt(0).toUpperCase() + string.slice(1)
-}
+  }
+
+  setClipboard(content) {
+    const blob = new Blob([content], {type: 'text/html'})
+    const clipboardItem = new ClipboardItem({'text/html' : blob})
+    navigator.clipboard.write([clipboardItem])
+  }
+
+  get hasPageTypeReference () {
+    if(!this.pageType?.length || this.pageType === this.resourceType) return
+
+    switch(this.pageType) {
+      case 'home':
+        return false
+      default:
+        return true
+    }
+  }
+
+  get Shopify () {
+    return this.data?.Shopify
+  }
 
   get storeName () {
-    return this.data?.shopify?.shop?.split('.')?.[0]
+    return this.Shopify?.shop?.split('.')?.[0]
+  }
+
+  get theme () {
+    return this.Shopify?.theme
   }
 
   get resourceType () {
@@ -107,6 +172,10 @@ class Popup {
 
   get resourceId () {
     return this.data?.meta?.page?.resourceId
+  }
+
+  get pageType () {
+    return this.data?.meta?.page?.pageType
   }
 }
 
