@@ -36,7 +36,7 @@ class ContentScript {
     chrome.runtime.sendMessage({ type: 'get-shop', storeName: this.storeName }, (response) => {
       if (!response.shop) return
 
-      window.sessionStorage.setItem(this.storeName, JSON.stringify(response.shop))
+      window.sessionStorage.setItem(this.storageKey, JSON.stringify(response.shop))
 
       this.data = {
         shop: response.shop,
@@ -70,10 +70,18 @@ class ContentScript {
   }
 
   get shopAdminDataFromSessionStorage () {
-    const shopAdminData = window.sessionStorage.getItem(this.storeName)
+    const shopAdminData = window.sessionStorage.getItem(this.storageKey)
     if (!shopAdminData) return
 
     return JSON.parse(shopAdminData)
+  }
+
+  get storageKey () {
+    return `${this.storeName}-${this.manifest.version}`
+  }
+
+  get manifest () {
+    return chrome.runtime.getManifest()
   }
 }
 
