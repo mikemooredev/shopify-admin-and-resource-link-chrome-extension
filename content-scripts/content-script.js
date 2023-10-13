@@ -28,12 +28,10 @@ class ContentScript {
 
     this.data = data
 
-    /*
     if (this.adminShopDataFromSessionStorage) {
       this.data.adminShop = this.adminShopDataFromSessionStorage
       return
     }
-    */
 
     // Get shop admin data
     if (!this.data?.shop?.name) return

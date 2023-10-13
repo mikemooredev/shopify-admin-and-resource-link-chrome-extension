@@ -4,8 +4,8 @@ class ServiceWorker {
   }
 
   setupListeners () {
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      this.handleMessage(request).then(sendResponse);
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      this.handleMessage(message).then(sendResponse);
       return true;
     })
   }
