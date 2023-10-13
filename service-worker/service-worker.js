@@ -4,22 +4,17 @@ class ServiceWorker {
   }
 
   setupListeners () {
-    chrome.runtime.onMessage.addListener(this.handleMessage.bind(this))
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      this.handleMessage(request).then(sendResponse);
+      return true;
+    })
   }
 
-  handleMessage (message, sender, senderResponse) {
+  async handleMessage (message) {
     if (message.type !== "get-shop") return
-
-    fetch(`https://admin.shopify.com/store/${message.shopName}/shop.json`)
-    .then(response => {
-      return response.ok ? response.json() : {}
-    }).then(response => {
-      const data = typeof(response?.shop) === 'object' ? response : {}
-
-      senderResponse(data)
-    })
-
-    return true
+    const response = await fetch(`https://admin.shopify.com/store/${message.shopName}/shop.json`)
+    const data = response.ok ? await response.json() : {}
+    return data
   }
 }
 
