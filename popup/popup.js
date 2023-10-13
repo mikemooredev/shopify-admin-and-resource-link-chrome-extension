@@ -34,24 +34,26 @@ class Popup {
   }
 
   handleResponse (response) {
-    if (!response?.data?.Shopify && !response?.data?.meta) return
+    console.log(response)
+    if (!response?.isShopify && !response?.meta) return
 
-    this.data = response.data
+    this.data = response
 
     const defaultViewEl = document.querySelector('[data-view="default"]')
+    const accessRequiredViewEl = document.querySelector('[data-view="admin-access-required"]')
     const adminViewEl = document.querySelector('[data-view="admin"]')
 
     const params = new URLSearchParams(this.data?.location?.search)
     params.set('preview_theme_id', this.theme?.id)
 
-    const adminUrl = `https://admin.shopify.com/store/${this.storeName}`
-    const previewUrl = `https://${this.Shopify?.shop}${this.data.location.pathname}?${params.toString()}`
+    const adminUrl = `https://admin.shopify.com/store/${this.shopName}`
+    const previewUrl = `https://${this.shopUrl}${this.data.location.pathname}?${params.toString()}`
 
     adminViewEl.innerHTML = `
-      <h1>${response.shop.name}</h1>
+      <h1>${this.data?.adminShop?.name}</h1>
       <div data-store-detail>
         <p>
-          <strong>Store Name:</strong> <a href="${adminUrl}/" target="_blank">${this.storeName}</a><br />
+          <strong>Store Name:</strong> <a href="${adminUrl}/" target="_blank">${this.shopName}</a><br />
           <strong>Theme Name:</strong> ${this.theme?.name}<br />
           <strong>Theme ID:</strong> ${this.theme?.id}<br />
           <strong>Preview URL:</strong> <a href="${previewUrl}" target="_blank">${previewUrl}</a>
@@ -121,8 +123,23 @@ class Popup {
       </ul>
     `
 
-    defaultViewEl?.setAttribute('aria-hidden', 'true')
-    adminViewEl?.setAttribute('aria-hidden', 'false')
+    if (!this.data?.isShopify) {
+      defaultViewEl?.setAttribute('aria-hidden', 'false')
+      accessRequiredViewEl?.setAttribute('aria-hidden', 'true')
+      adminViewEl?.setAttribute('aria-hidden', 'true')
+    }
+
+    if (this.data?.isShopify && !this.data?.adminShop?.name) {
+      defaultViewEl?.setAttribute('aria-hidden', 'true')
+      accessRequiredViewEl?.setAttribute('aria-hidden', 'false')
+      adminViewEl?.setAttribute('aria-hidden', 'true')
+    }
+
+    if (this.data?.isShopify && this.data?.adminShop?.name) {
+      defaultViewEl?.setAttribute('aria-hidden', 'true')
+      accessRequiredViewEl?.setAttribute('aria-hidden', 'true')
+      adminViewEl?.setAttribute('aria-hidden', 'false')
+    }
   }
 
   togglePressed (element) {
@@ -154,16 +171,16 @@ class Popup {
     }
   }
 
-  get Shopify () {
-    return this.data?.Shopify
+  get shopUrl () {
+    return this.data?.shop?.url
   }
 
-  get storeName () {
-    return this.Shopify?.shop?.split('.')?.[0]
+  get shopName () {
+    return this.data?.shop?.name
   }
 
   get theme () {
-    return this.Shopify?.theme
+    return this.data?.theme
   }
 
   get resourceType () {

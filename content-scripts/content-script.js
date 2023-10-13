@@ -21,27 +21,26 @@ class ContentScript {
 
   handlePostMessages (event) {
     if (event.origin !== window.location.origin || !event.isTrusted || !event.data.length) return
-    this.windowData = this.isJsonString(event.data) ? JSON.parse(event.data) : {}
 
-    if (this.shopAdminDataFromSessionStorage) {
-      this.data = {
-        shop: this.shopAdminDataFromSessionStorage,
-        data: this.windowData
-      }
+    const data = this.isJsonString(event.data) ? JSON.parse(event.data) : {}
+
+    if (!data?.isShopify) return
+
+    this.data = data
+
+    if (this.adminShopDataFromSessionStorage) {
+      this.data.adminShop = this.adminShopDataFromSessionStorage
       return
     }
 
     // Get shop admin data
-    if (!this.storeName) return
-    chrome.runtime.sendMessage({ type: 'get-shop', storeName: this.storeName }, (response) => {
+    if (!this.data?.shop?.name) return
+    chrome.runtime.sendMessage({ type: 'get-shop', shopName: this.data?.shop?.name }, (response) => {
       if (!response.shop) return
 
       window.sessionStorage.setItem(this.storageKey, JSON.stringify(response.shop))
 
-      this.data = {
-        shop: response.shop,
-        data: this.windowData
-      }
+      this.data.adminShop = response.shop
     })
   }
 
@@ -64,20 +63,15 @@ class ContentScript {
     return true
   }
 
-  get storeName () {
-    const storeName = this.windowData?.Shopify?.shop?.split('.')?.[0]
-    return storeName?.length ? storeName : null
-  }
+  get adminShopDataFromSessionStorage () {
+    const adminShopData = window.sessionStorage.getItem(this.storageKey)
+    if (!adminShopData) return
 
-  get shopAdminDataFromSessionStorage () {
-    const shopAdminData = window.sessionStorage.getItem(this.storageKey)
-    if (!shopAdminData) return
-
-    return JSON.parse(shopAdminData)
+    return JSON.parse(adminShopData)
   }
 
   get storageKey () {
-    return `${this.storeName}-${this.manifest.version}`
+    return `${this.shopName}-${this.manifest.version}`
   }
 
   get manifest () {

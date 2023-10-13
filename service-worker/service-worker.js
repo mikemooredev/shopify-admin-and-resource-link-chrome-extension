@@ -10,7 +10,7 @@ class ServiceWorker {
   handleMessage (message, sender, senderResponse) {
     if (message.type !== "get-shop") return
 
-    fetch(`https://admin.shopify.com/store/${message.storeName}/shop.json`)
+    fetch(`https://admin.shopify.com/store/${message.shopName}/shop.json`)
     .then(response => {
       return response.ok ? response.json() : {}
     }).then(response => {
