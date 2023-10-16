@@ -5,6 +5,7 @@
 
   const data = {
     isShopify: !!Shopify,
+    isCheckout: !!Shopify?.Checkout,
     shop: {
       name: Shopify?.shop?.split('.')?.[0],
       url: Shopify?.shop

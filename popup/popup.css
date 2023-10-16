@@ -1,6 +1,7 @@
 body {
   --Color_Body: #333;
   --Color_Grey: #777;
+  --Color_Grey-light: #ddd;
 
   inline-size: 20rem;
   margin: 1rem;
@@ -53,6 +54,7 @@ strong {
   font-weight: 600;
 }
 
+input,
 button {
   cursor: pointer;
   border-radius: 2px;
@@ -61,10 +63,43 @@ button {
   transition: color 0.25s ease-in, background-color 0.25s ease-in;
   font-size: 12px;
 }
+button {
+  background-color: var(--Color_Grey-light);
+}
 button:is(:hover, :focus-visible) {
   color: #fff;
   background-color: var(--Color_Body);
 }
 button:is([data-pressed]) {
   background-color: var(--Color_Grey);
+}
+
+button.icon {
+  all: unset;
+  color: var(--Color_Body);
+  block-size: 22px;
+  cursor: pointer;
+  display: inline-block;
+  padding-inline-start: 7px;
+  align-items: center;
+  display: flex;
+}
+
+button.icon:is([data-pressed]) {
+  color: var(--Color_Grey);
+}
+
+.row {
+  align-items: center;
+  display: flex;
+  gap: 5px;
+}
+
+.visually-hidden {
+  display: block;
+  inline-size: 0;
+  block-size: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
