@@ -16,3 +16,7 @@
   - `content-script.js` stores the shop data in `sessionStorage` so the extension only needs to perform one fetch request per session, per store.
 - When the user clicks on the extension 'popup.js' requests the shop data from `content-script.js`
   - When shop data exists the popup displays helpful links relevant to the current page being viewed by the user
+
+## What does it look like?
+
+<img width="360" alt="image" src="https://github.com/mikemooredev/shopify-admin-and-resource-link-chrome-extension/assets/20971511/218ad791-8948-46f5-bd54-eefae6677c7a">
